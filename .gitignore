@@ -63,3 +63,7 @@ ehthumbs.db
 saved/               # Folder storing predicted output images
 custom_data/         # Large dataset collected for training
 *.log                 # Log files
+
+dataset/
+dataset/emnist-balanced-train.csv
+dataset/A_Z Handwritten Data/
