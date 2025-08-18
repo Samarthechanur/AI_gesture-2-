@@ -4,8 +4,16 @@ import mediapipe as mp
 import tensorflow as tf
 import time
 import os
-from gesture_utils import preprocess_canvas
+import pyttsx3
 
+# ========= TEXT-TO-SPEECH SETUP ==========
+def speak_text(text):
+    """Speaks the given text aloud using pyttsx3 text-to-speech."""
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+# ========== MODEL & UTILS SETUP ==========
 MODEL_PATH = "model/hand_gesture_model.h5"
 LABELS_PATH = "labels.txt"
 SAVE_DIR = "saved"
@@ -25,7 +33,6 @@ canvas_width, canvas_height = 640, 480
 side_pad = 30
 top_pad = 60
 bottom_pad = 70
-border_rad = 16
 
 canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
 
@@ -62,16 +69,40 @@ def save_drawing(img, pred_label, cur_word):
     cv2.imwrite(filepath, img)
     print(f"[INFO] Saved drawing as {filepath}")
 
+# ==== FIXED INTERPOLATE POINTS FUNCTION ====
 def interpolate_points(p1, p2):
     points = []
-    dist = int(np.linalg.norm(np.array(p2) - np.array(p1)))
+    p1_arr = np.array(p1)
+    p2_arr = np.array(p2)
+    dist = int(np.linalg.norm(p2_arr - p1_arr))
     if dist == 0:
-        return [p2]
+        return [tuple(p2_arr)]
     for i in range(dist):
-        x = int(p1[0] + (p2[0] - p1[0]) * i / dist)
-        y = int(p1[1] + (p2[1] - p1[1]) * i / dist)
-        points.append((x, y))
+        pt = tuple((p1_arr + (p2_arr - p1_arr) * i / dist).astype(int))
+        points.append(pt)
     return points
+
+def preprocess_canvas(canvas):
+    # Convert the canvas to grayscale
+    gray = cv2.cvtColor(canvas, cv2.COLOR_BGR2GRAY)
+    # Threshold to get binary image
+    _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY)
+    # Find contours
+    contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if len(contours) == 0:
+        return None
+    # Get bounding box of largest contour
+    x, y, w, h = cv2.boundingRect(max(contours, key=cv2.contourArea))
+    # Crop and resize to 28x28 as expected by model
+    roi = thresh[y:y+h, x:x+w]
+    roi = cv2.resize(roi, (28, 28))
+    # Normalize and add batch/channel dimensions
+    roi = roi.astype("float32") / 255.0
+    roi = np.expand_dims(roi, axis=-1)
+    roi = np.expand_dims(roi, axis=0)
+    return roi
+
+# ================= MAIN LOOP ==================
 
 cap = cv2.VideoCapture(0)
 
@@ -158,13 +189,19 @@ while True:
                 img_to_save = img_to_save.squeeze(-1)
             save_drawing(img_to_save, pred_label, ''.join(word_buffer))
             canvas_clear_flag = True
+
+            # === TEXT TO SPEECH ===
+            speak_text(f"Added letter {pred_label}")
         else:
             prediction_text = "No drawing to predict"
             print("[INFO] Nothing drawn.")
     elif key == 13:  # Enter key
         if word_buffer:
-            prediction_text = "Full Word: " + "".join(word_buffer)
-            print(f"[RESULT] Full Word prediction: {''.join(word_buffer)}")
+            word_str = "".join(word_buffer)
+            prediction_text = "Full Word: " + word_str
+            print(f"[RESULT] Full Word prediction: {word_str}")
+            # ============== KEY CHANGE HERE: Pronounce as a word ==============
+            speak_text(word_str)  # Only the word (WAR), not letter by letter!
             word_buffer = []
         else:
             prediction_text = "No letters drawn"
