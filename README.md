@@ -1,54 +1,165 @@
-# AI Gesture Studio – Air-Writing Recognition
+# AI Gesture Studio – Air‑Written Hand Gesture Recognition with Text‑to‑Speech
 
-AI Gesture Studio is a real-time **air-writing recognition system** that uses a webcam and MediaPipe hand-tracking to capture finger movements in free air, then predicts drawn **digits (0‑9)** and **uppercase letters (A‑Z)** using a deep learning CNN model.
+A computer vision project that enables users to write letters and numbers in the air using hand gestures, recognizes them with a machine learning model, and converts them to text using offline speech synthesis.
 
-## 📌 Features
-- **Real-time Hand Tracking** (MediaPipe)
-- **Draw Letters or Numbers in Air** and recognize them instantly
-- **Single Character & Full Word Prediction**
-- **Accurate CNN Model** (trained on EMNIST Balanced + augmentation)
-- **Polished Interface** with instructions and controls
-- **Saves Predictions** for retraining or auditing
 
-## 🎮 Controls
-| Key | Action |
-|-----|--------|
-| **S** | Start/Stop Drawing |
-| **E** | Predict and Add Current Character to Word |
-| **C** | Clear Canvas |
-| **Enter** | Finalize Word and Display Prediction |
-| **Q** | Quit |
+##  About the Project
 
-## 🛠 Technologies Used
-- Python 3
-- OpenCV
-- MediaPipe
-- TensorFlow/Keras
-- NumPy
+**AI Gesture Studio** is an assistive and innovative application that recognizes air-written hand gestures using a webcam and converts them into text with offline text-to-speech functionality. It’s designed for  People with speech disabilities or difficulties, enabling them to communicate more easily through air-written gestures and offline text-to-speech and also researchers and students exploring gesture recognition, assistive technologies, and human-computer interaction. 
 
-## 🚀 Usage
-1. Clone this repository:
-    ```
-    git clone https://github.com/<your-username>/AI_Gesture_Studio.git
-    ```
-2. Install dependencies:
-    ```
-    pip install -r requirements.txt
-    ```
-3. Run the app:
-    ```
-    python hand_gesture_recognition.py
-    ```
+## Features
 
-## 📂 Project Structure
-   AI_Gesture_Studio/
-│-- model/hand_gesture_model.h5 # Trained CNN model
-│-- labels.txt # Label list (0-9, A-Z)
-│-- hand_gesture_recognition.py # Main app
-│-- gesture_utils.py # Utilities for preprocessing
-│-- train_model.py / train_model_augmented.py
-│-- README.md
+- Air-writing recognition using finger movements.
+- Prediction of letters (A–Z) and digits (0–9).
+- Offline text-to-speech using `pyttsx3`.
+- User-controlled interaction to avoid accidental triggers.
+- Smooth interpolation for clear handwriting recognition.
+- Real-time visualization with OpenCV.
 
-## 👨‍💻 Author
-Samarth H – [GitHub Profile](https://github.com/Samarthechanur)
+## Authors
 
+- [@Pawan P Acharya](https://github.com/PAWANPACHARYA)
+- [@Pranam](https://github.com/sappranam)
+- [@Samarth H](https://github.com/Samarthechanur)
+- [@Sankalp Poojary](https://github.com/sankaalp)
+
+## Acknowledgements
+
+We extend our gratitude to:
+
+- Our mentors and faculty for their guidance.
+- The open-source community behind TensorFlow/Keras, MediaPipe Hands, OpenCV, and Python libraries like `pyttsx3` that enabled offline text-to-speech.
+- All contributors and developers whose resources have made this project possible.
+
+## Tech Stack
+
+- **TensorFlow/Keras** – Model inference for gesture recognition.
+- **MediaPipe Hands** – Real-time hand landmark detection.
+- **OpenCV** – Webcam capture, drawing, and image segmentation.
+- **pyttsx3** – Offline text-to-speech engine.
+- **Python** – Core programming language.
+- **PyInstaller** – Building standalone executables for Windows.
+
+## Installation
+
+### Requirements
+
+- **Operating System**: Windows 10/11 (x64). Linux/macOS may work with compatible packages.
+- **Python Version**: 3.10 recommended.
+- **Hardware**:
+  - Any modern x64 CPU with at least 4 GB RAM (8 GB recommended).
+  - Webcam and speakers.
+
+### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Samarthechanur/AI_gesture-2-
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd AI_gesture-2--main/AI_gesture-2--main
+   ```
+
+3. Create or activate a Python environment and install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+##  Usage
+
+Start the application by running:
+
+```bash
+python hand_gesture_recognition.py
+```
+
+### Runtime Shortcuts
+
+- **S** – Start/Stop air-writing.
+- **E** – Segment and predict the written text.
+- **Enter** – Speak the current buffer.
+- **Space** – Insert a space.
+- **C** – Clear the canvas.
+- **Q** – Quit the application.
+
+Ensure proper lighting and keep your index finger clearly visible.
+
+## Deployment
+
+###  Option A – Using PowerShell script
+
+```bash
+PowerShell -ExecutionPolicy Bypass -File .\AI_gesture-2--main\build_exe.ps1 -Clean
+```
+
+This creates:
+
+```text
+AI_gesture-2--main/AI_gesture-2--main/dist/hand_gesture_recognition.exe
+```
+
+###  Option B – Manual PyInstaller build
+
+```bash
+pyinstaller --noconfirm --onefile --name hand_gesture_recognition \
+  --add-data "model/model/hand_gesture_model.h5;model/model" \
+  --add-data "model/labels.txt;model" \
+  --collect-all mediapipe --collect-all numpy --collect-all cv2 \
+  hand_gesture_recognition.py
+```
+
+Run the generated executable from:
+
+```bash
+./dist/hand_gesture_recognition.exe
+```
+
+##  Optimizations
+
+- Smooth strokes through interpolation between index finger points.
+- Square padding before resizing to maintain aspect ratio.
+- Left-to-right contour sorting for correct word formation.
+- User-triggered speech avoids accidental repeats.
+- Thicker strokes for better segmentation clarity.
+
+##  Used By
+
+This project can be used by:
+
+- People with speech disabilities or difficulties, enabling them to communicate more easily through air-written gestures and offline text-to-speech.
+- Researchers and students exploring gesture recognition, assistive technologies, and human-computer interaction.
+
+## Appendix
+
+- **Model Input**: 28×28 grayscale images.
+- **Labels**: Uppercase A–Z and digits 0–9 (subset supported by the trained model).
+- **Canvas Segmentation**: Contour-based left-to-right sorting with padding.
+- **Repeat Policy**: Speech is triggered manually to prevent unintended outputs.
+
+##  Known Issues
+
+- Camera feed optimization may be needed on some devices.
+- Audio output inconsistencies depending on system setup and voices.
+
+##  Troubleshooting
+
+- **PowerShell blocks scripts**: Run the following in the current session:
+  ```bash
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  ```
+
+- **Path length errors**: Move the project to a shorter path, e.g., `C:\projects\gesture`.
+
+- **Model not found**: Verify that `model/model/hand_gesture_model.h5` and `model/labels.txt` exist before building.
+
+##  Relevant Files
+
+- `hand_gesture_recognition.py`: Main application code.
+- `gesture_utils.py`: Image preprocessing and segmentation.
+- `model/`: Trained model and labels.
+- `build_exe.ps1`: PowerShell build script.
+- `hand_gesture_recognition.spec`: PyInstaller configuration.
+- `requirements.txt`: Python dependencies.
+- `dist/`: Contains the built executable.
